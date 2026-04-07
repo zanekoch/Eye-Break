@@ -21,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, @preco
     }()
 
     private var heartbeatTimer: Timer?
+    private var reminderSound: NSSound?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         applyAppIcon()
@@ -212,6 +213,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, @preco
 
             let isAuthorized = settings.authorizationStatus == .authorized
                 || settings.authorizationStatus == .provisional
+            let shouldPlayReminderSound = settings.soundSetting == .enabled
 
             guard isAuthorized else {
                 Task { @MainActor in
@@ -223,7 +225,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, @preco
             let content = UNMutableNotificationContent()
             content.title = "Eye break"
             content.body = "Look away from your screen for a moment and rest your eyes."
-            content.sound = .default
 
             let request = UNNotificationRequest(
                 identifier: "EyeBreakReminder.\(UUID().uuidString)",
@@ -239,6 +240,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, @preco
                             message: "EyeBreak could not schedule the reminder notification.\n\n\(error.localizedDescription)"
                         )
                         return
+                    }
+
+                    if shouldPlayReminderSound {
+                        self.playReminderSound()
                     }
 
                     self.scheduler.remindNow()
@@ -507,6 +512,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, @preco
         }
 
         NSApplication.shared.applicationIconImage = icon
+    }
+
+    private func playReminderSound() {
+        if reminderSound == nil {
+            reminderSound = loadReminderSound()
+        }
+
+        if let reminderSound {
+            reminderSound.stop()
+            reminderSound.currentTime = 0
+            reminderSound.play()
+            return
+        }
+
+        NSSound.beep()
+    }
+
+    private func loadReminderSound() -> NSSound? {
+        guard let url = Bundle.main.url(forResource: "ReminderChime", withExtension: "wav") else {
+            return nil
+        }
+
+        let sound = NSSound(contentsOf: url, byReference: true)
+        sound?.volume = 1
+        return sound
     }
 
     private func showAlert(title: String, message: String) {

@@ -10,6 +10,7 @@ It lives in the menu bar, nags you to look away from the computer, and then poli
 - Can launch automatically at login.
 - Defaults to active hours from 8:00 AM to 8:00 PM.
 - Sends a notification every 20 minutes by default.
+- Plays a short chime when a reminder notification is delivered.
 - Lets you turn reminders off, snooze them, change the interval, and change the default snooze length from the menu bar.
 - Ships with a custom eye app icon that is used for the app bundle and notification icon.
 - Persists your settings in `UserDefaults`.

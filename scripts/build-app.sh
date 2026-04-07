@@ -24,7 +24,7 @@ mkdir -p "$APP_DIR/Contents/Resources"
 
 cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "$ROOT_DIR/Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
-cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
+find "$ROOT_DIR/Resources" -maxdepth 1 -type f ! -name 'Info.plist' -exec cp {} "$APP_DIR/Contents/Resources/" \;
 
 if command -v codesign >/dev/null 2>&1; then
   codesign --force --deep --sign - "$APP_DIR" >/dev/null 2>&1 || true
